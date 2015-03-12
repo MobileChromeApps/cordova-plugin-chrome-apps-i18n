@@ -22,9 +22,7 @@ import java.util.regex.Pattern;
 
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaResourceApi.OpenForReadResult;
-import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginManager;
 import org.json.JSONArray;
@@ -50,8 +48,10 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
     // The pattern of any messages we need to replace
     private Pattern patterRegex = Pattern.compile("__MSG_(@@)?[a-zA-Z0-9_-]*__");
 
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
+    ChromeExtensionURLs chromeExtensionURLsPlugin;
+
+    @Override
+    public void pluginInitialize() {
         PluginManager pm = null;
         try {
             Method gpm = webView.getClass().getMethod("getPluginManager");
@@ -63,8 +63,8 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
                 pm = (PluginManager)pmf.get(webView);
             } catch (Exception e) {}
         }
-        ChromeExtensionURLs extPlugin = (ChromeExtensionURLs)pm.getPlugin("ChromeExtensionURLs");
-        extPlugin.i18nPlugin = this;
+        chromeExtensionURLsPlugin = (ChromeExtensionURLs)pm.getPlugin("ChromeExtensionURLs");
+        chromeExtensionURLsPlugin.i18nPlugin = this;
     }
 
     @Override
@@ -94,8 +94,7 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
     public Uri remapChromeUri(Uri uri) {
         Uri ret = Uri.parse(replacePatternsInLine(uri.toString()));
         if (ret.getPath().endsWith(".css") || uri.getPath().equals("manifest.json")) {
-            Uri fileUri = Uri.parse("file:///android_asset/www" + uri.getPath());
-            fileUri = webView.getResourceApi().remapUri(fileUri);
+            Uri fileUri = chromeExtensionURLsPlugin.remapToRealLocation(uri);
             try {
                 OpenForReadResult readResult = webView.getResourceApi().openForRead(fileUri, true);
                 try {
