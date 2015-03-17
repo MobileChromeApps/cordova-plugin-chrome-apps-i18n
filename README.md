@@ -26,6 +26,9 @@ This plugin can be used by Apache Cordova applications, but some of the automate
 * Placeholders are not replaced in CSS files
 
 # Release Notes
+## 1.1.0 (Mar 17, 2015)
+* Fix to work with non-`file:///android_asset` start URLs
+
 ## 1.0.3 (Jan 27, 2015)
 * Change from using okhttp's Base64 to Android's Base64
 
