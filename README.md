@@ -26,6 +26,9 @@ This plugin can be used by Apache Cordova applications, but some of the automate
 * Placeholders are not replaced in CSS files
 
 # Release Notes
+## 1.1.1 (Mar 18, 2015)
+* Improved performance of CSS substitutions
+
 ## 1.1.0 (Mar 17, 2015)
 * Fix to work with non-`file:///android_asset` start URLs
 
