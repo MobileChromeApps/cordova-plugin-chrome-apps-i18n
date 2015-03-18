@@ -4,7 +4,11 @@
 
 package org.chromium;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -21,9 +25,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.cordova.CordovaArgs;
+import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaResourceApi.OpenForReadResult;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginManager;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +37,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -47,6 +54,15 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
     private Map<String, JSONObject> memoizedJsonContents = new HashMap<String, JSONObject>();
     // The pattern of any messages we need to replace
     private Pattern patterRegex = Pattern.compile("__MSG_(@@)?[a-zA-Z0-9_-]*__");
+    private static boolean HAS_CDV_PLUGIN_API;
+    static {
+        try {
+            CordovaPlugin.class.getMethod("handleOpenForRead", Uri.class);
+            HAS_CDV_PLUGIN_API = true;
+        } catch (NoSuchMethodException e) {
+            HAS_CDV_PLUGIN_API = false;
+        }
+    }
 
     ChromeExtensionURLs chromeExtensionURLsPlugin;
 
@@ -94,6 +110,13 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
     public Uri remapChromeUri(Uri uri) {
         Uri ret = Uri.parse(replacePatternsInLine(uri.toString()));
         if (ret.getPath().endsWith(".css") || uri.getPath().equals("manifest.json")) {
+            if (HAS_CDV_PLUGIN_API) {
+                return new Uri.Builder()
+                        .scheme("cdvplugin")
+                        .authority("ChromeI18n")
+                        .appendQueryParameter("origUri", uri.toString())
+                        .build();
+            }
             Uri fileUri = chromeExtensionURLsPlugin.remapToRealLocation(uri);
             try {
                 OpenForReadResult readResult = webView.getResourceApi().openForRead(fileUri, true);
@@ -111,6 +134,24 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
             }
         }
         return ret;
+    }
+
+    public CordovaResourceApi.OpenForReadResult handleOpenForRead(Uri uri) throws IOException {
+        Uri origUri = Uri.parse(uri.getQueryParameter("origUri"));
+        Uri fileUri = chromeExtensionURLsPlugin.remapToRealLocation(origUri);
+        OpenForReadResult readResult = webView.getResourceApi().openForRead(fileUri);
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(replaceI18nPlaceholders(readResult.inputStream));
+            // Use reflection to be compilable before the constructor was made public.
+            try {
+                Constructor<OpenForReadResult> ctor = OpenForReadResult.class.getConstructor(Uri.class, InputStream.class, String.class, long.class, AssetFileDescriptor.class);
+                return ctor.newInstance(uri, inputStream, webView.getResourceApi().getMimeType(fileUri), (long)inputStream.available(), null);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            readResult.inputStream.close();
+        }
     }
 
     private byte[] replaceI18nPlaceholders(InputStream is) throws IOException {
