@@ -18,12 +18,11 @@ To use the plugin, create a `_locales` directory within your web assets director
 
 This plugin can be used by Apache Cordova applications, but some of the automated installation steps must be done manually:
 
-  * The locale directory within your web assets directory should be named `CCA_locales`, rather than `_locales`.
   * The specific locale directories within `CCA_locales` must be lower-cased, with an underscores separating the country code from the language code, if it is present. For example, `en` and `en_us` will be read as locale directories, but `en-us`, `en_US` and `en-US` will not.
 
 ## Limitations
 
-* Placeholders are not replaced in CSS files
+* On iOS, placeholders within manifest.json and .css files are not replaced (if you want this, file an issue!)
 
 # Release Notes
 ## 1.1.1 (Mar 18, 2015)

@@ -281,7 +281,7 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
             for(int i = 0; i < localeChain.size(); i++) {
                 String locale = localeChain.get(i);
                 if (memoizedJsonContents.get(locale) == null) {
-                    String fileName = "www/locales/" + locale + "/messages.json";
+                    String fileName = "www/_locales/" + locale + "/messages.json";
                     JSONObject contents = getAssetContents(fileName);
                     // convert all fields to lower case to check case insensitively
                     contents = toLowerCaseMessage(contents);
@@ -328,7 +328,7 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
         for(String currLocale : localesArr) {
             try {
                 // Check that the manifest.json exists
-                InputStream is = am.open("www/locales/" + currLocale + "/messages.json");
+                InputStream is = am.open("www/_locales/" + currLocale + "/messages.json");
                 is.close();
                 availableLocales.add(currLocale);
             } catch (IOException e) { /* Suppress not found exceptions */ }
@@ -351,6 +351,7 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
         //Small trick to get the scanner to pull the entire input stream in one go
         Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
         String contents = s.hasNext() ? s.next() : "";
+        s.close();
         return new JSONObject(contents);
     }
 }
