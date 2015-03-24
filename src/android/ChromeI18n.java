@@ -50,6 +50,7 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
     private static final String LOG_TAG = "ChromeI18n";
     // Save the locale chain so we don't have to recalculate each time
     private List<String> chosenLocales;
+    private List<String> availableLocales;
     // Save any retrieved message.json contents in memory so that we don't have to retrieve it again
     private Map<String, JSONObject> memoizedJsonContents = new HashMap<String, JSONObject>();
     // The pattern of any messages we need to replace
@@ -81,6 +82,18 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
         }
         chromeExtensionURLsPlugin = (ChromeExtensionURLs)pm.getPlugin("ChromeExtensionURLs");
         chromeExtensionURLsPlugin.i18nPlugin = this;
+
+        // TODO: This would be much faster if we used the asset meta cache
+        // provided by the file plugin, or just created the list at build time.
+        availableLocales = new ArrayList<String>();
+        try {
+            AssetManager am = webView.getContext().getAssets();
+            String[] localesArr = am.list("www/_locales");
+            for (String currLocale : localesArr) {
+                availableLocales.add(currLocale);
+            }
+        } catch (IOException e) {
+        }
     }
 
     @Override
@@ -265,7 +278,7 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
                 chosenLocales = new ArrayList<String>();
                 for(int i = 0; i < localesToUse.size(); i++) {
                     String currentLocale = localesToUse.get(i);
-                    if(isLocaleAvailable(currentLocale)) {
+                    if (availableLocales.contains(currentLocale)) {
                         chosenLocales.add(currentLocale);
                     }
                 }
@@ -321,21 +334,6 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
         return contents;
     }
 
-    private boolean isLocaleAvailable(String locale) throws IOException {
-        List<String> availableLocales = new ArrayList<String>();
-        AssetManager am = this.cordova.getActivity().getAssets();
-        String[] localesArr = am.list("www/locales");
-        for(String currLocale : localesArr) {
-            try {
-                // Check that the manifest.json exists
-                InputStream is = am.open("www/_locales/" + currLocale + "/messages.json");
-                is.close();
-                availableLocales.add(currLocale);
-            } catch (IOException e) { /* Suppress not found exceptions */ }
-        }
-        return availableLocales.contains(locale);
-    }
-
     private String getDefaultLocale() throws JSONException, IOException {
         JSONObject manifestContents = getAssetContents("www/manifest.json");
         String defaultLocale = manifestContents.optString("default_locale");
@@ -346,8 +344,8 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
     }
 
     private JSONObject getAssetContents(String assetName) throws IOException, JSONException {
-        Context context = this.cordova.getActivity();
-        InputStream is = context.getAssets().open(assetName);
+        AssetManager am = webView.getContext().getAssets();
+        InputStream is = am.open(assetName);
         //Small trick to get the scanner to pull the entire input stream in one go
         Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
         String contents = s.hasNext() ? s.next() : "";

@@ -24,6 +24,7 @@
 
   <platform name="android">
     <source-file src="src/android/ChromeI18n.java" target-dir="src/org/chromium" />
+    <framework src="src/android/copy-locales.gradle" custom="true" type="gradleReference" />
 
     <config-file target="res/xml/config.xml" parent="/widget">
       <feature name="ChromeI18n">
