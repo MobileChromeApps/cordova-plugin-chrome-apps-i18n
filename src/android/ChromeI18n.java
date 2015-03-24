@@ -5,10 +5,9 @@
 package org.chromium;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -16,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -29,16 +29,13 @@ import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaResourceApi.OpenForReadResult;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -83,15 +80,18 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
         chromeExtensionURLsPlugin = (ChromeExtensionURLs)pm.getPlugin("ChromeExtensionURLs");
         chromeExtensionURLsPlugin.i18nPlugin = this;
 
-        // TODO: This would be much faster if we used the asset meta cache
-        // provided by the file plugin, or just created the list at build time.
+        // TODO: This should probably be a build step.
         availableLocales = new ArrayList<String>();
         try {
-            AssetManager am = webView.getContext().getAssets();
-            String[] localesArr = am.list("www/_locales");
-            for (String currLocale : localesArr) {
-                availableLocales.add(currLocale);
+            File localesDir = new File(webView.getResourceApi().remapUri(Uri.parse("file:///android_asset/www/_locales")).getPath());
+            String[] localesArr;
+            if (localesDir.getAbsolutePath().startsWith("/android_asset/")) {
+                String assetPath = localesDir.getAbsolutePath().substring("/android_asset/".length());
+                localesArr = webView.getContext().getAssets().list(assetPath);
+            } else {
+                localesArr = localesDir.list();
             }
+            availableLocales.addAll(Arrays.asList(localesArr));
         } catch (IOException e) {
         }
     }
@@ -344,10 +344,10 @@ public class ChromeI18n extends CordovaPlugin implements ChromeExtensionURLs.Req
     }
 
     private JSONObject getAssetContents(String assetName) throws IOException, JSONException {
-        AssetManager am = webView.getContext().getAssets();
-        InputStream is = am.open(assetName);
+        Uri messagesUri = webView.getResourceApi().remapUri(Uri.parse("file:///android_asset/" + assetName));
+        OpenForReadResult offr = webView.getResourceApi().openForRead(messagesUri);
         //Small trick to get the scanner to pull the entire input stream in one go
-        Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        Scanner s = new java.util.Scanner(offr.inputStream).useDelimiter("\\A");
         String contents = s.hasNext() ? s.next() : "";
         s.close();
         return new JSONObject(contents);
