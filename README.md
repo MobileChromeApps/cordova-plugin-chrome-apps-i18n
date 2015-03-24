@@ -25,6 +25,10 @@ This plugin can be used by Apache Cordova applications, but some of the automate
 * On iOS, placeholders within manifest.json and .css files are not replaced (if you want this, file an issue!)
 
 # Release Notes
+## 2.0.0 (Mar 24, 2015)
+* `CCA_locales` -> `_locales` now that we build with gradle
+* Now works better in CADT (but paths need to be lower-case and use `_`s rather than `-`s)
+
 ## 1.1.1 (Mar 18, 2015)
 * Improved performance of CSS substitutions
 
