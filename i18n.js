@@ -101,8 +101,13 @@ function _isLocaleAvailable(locale) {
         var fileName = _getFilePathForLocale(locale);
         var xhr = new XMLHttpRequest();
         xhr.open('HEAD', fileName, false);
-        xhr.send(null);
-        availableLocales[locale] = (xhr.status === 200);
+        try {
+            xhr.send(null);
+            availableLocales[locale] = (xhr.status === 200 || xhr.status === 0);
+        } catch (e) {
+            // Safari throws for not found and sync.
+            availableLocales[locale] = false;
+        }
     }
     return availableLocales[locale];
 }
