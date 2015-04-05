@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-registerAutoTests('chrome.i18n', function() {
+exports.defineAutoTests = function() {
   'use strict';
   var testNode = null;
   var langEnUs = navigator.language.toLowerCase() == 'en-us';
@@ -185,4 +185,4 @@ registerAutoTests('chrome.i18n', function() {
       });
     }
   });
-});
+};
