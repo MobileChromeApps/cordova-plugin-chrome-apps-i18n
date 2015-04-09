@@ -4,6 +4,9 @@
 
 exports.defineAutoTests = function() {
   'use strict';
+
+  require('cordova-plugin-chrome-apps-test-framework.jasmine_helpers').addJasmineHelpers();
+
   var testNode = null;
   var langEnUs = navigator.language.toLowerCase() == 'en-us';
 
