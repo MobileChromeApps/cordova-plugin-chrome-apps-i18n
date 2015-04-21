@@ -7,8 +7,6 @@
 
 @interface ChromeI18n : CDVPlugin
 
-- (CDVPlugin*)initWithWebView:(UIWebView*)theWebView;
-
 - (void)getAcceptLanguages:(CDVInvokedUrlCommand*)command;
 
 @end

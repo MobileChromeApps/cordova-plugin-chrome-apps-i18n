@@ -13,12 +13,6 @@
 
 @implementation ChromeI18n
 
-- (CDVPlugin*)initWithWebView:(UIWebView*)theWebView
-{
-    self = [super initWithWebView:theWebView];
-    return self;
-}
-
 - (void)getAcceptLanguages:(CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
