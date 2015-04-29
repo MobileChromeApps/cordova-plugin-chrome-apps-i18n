@@ -1,0 +1,36 @@
+{
+  "name": "cordova-plugin-chrome-apps-i18n",
+  "version": "2.0.1-dev",
+  "description": "This plugin allows apps to present localised content to users according to the language / locale settings on their device.",
+  "cordova": {
+    "id": "cordova-plugin-chrome-apps-i18n",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-i18n.git"
+  },
+  "keywords": [
+    "chrome",
+    "i18n",
+    "internationalization",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.0.0"
+    }
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-i18n/issues"
+  },
+  "homepage": "https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-i18n"
+}
