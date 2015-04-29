@@ -13,8 +13,8 @@
 
   <name>Chrome Apps I18n API</name>
   <keywords>chrome,i18n,internationalization</keywords>
-  <repo>https://github.com/MobileChromeApps/mobile-chrome-apps.git</repo>
-  <issue>https://github.com/MobileChromeApps/mobile-chrome-apps/issues</issue>
+  <repo>https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-i18n.git</repo>
+  <issue>https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-i18n/issues</issue>
 
   <dependency id="cordova-plugin-chrome-apps-common" />
 
