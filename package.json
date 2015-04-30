@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-chrome-apps-i18n",
-  "version": "2.0.1",
+  "version": "2.0.2-dev",
   "description": "This plugin allows apps to present localised content to users according to the language / locale settings on their device.",
   "cordova": {
     "id": "cordova-plugin-chrome-apps-i18n",
