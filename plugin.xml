@@ -16,7 +16,7 @@
   <repo>https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-i18n.git</repo>
   <issue>https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-i18n/issues</issue>
 
-  <dependency id="cordova-plugin-chrome-apps-common" />
+  <dependency id="cordova-plugin-chrome-apps-common@1" />
 
   <js-module src="i18n.js" name="I18n">
     <clobbers target="chrome.i18n" />
